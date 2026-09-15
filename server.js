@@ -102,22 +102,29 @@ server.registerTool(
 
       const lineas = [
         `Carta de porte CTG ${c.nroCTG}${c.nroCPE ? ` (CPE ${c.nroCPE})` : ''}`,
-        `  estado: ${c.estado ?? 's/d'} | grano: ${c.grano ?? c.codGrano ?? 's/d'} | campaña: ${c.campania ?? 's/d'}`,
+        `  estado: ${c.estado ?? 's/d'} | grano: ${c.grano ?? c.codGrano ?? 's/d'} | cosecha: ${c.cosecha ?? 's/d'}`,
         `  emitida: ${c.fechaEmision ?? 's/d'}${c.fechaVencimiento ? ` | vence: ${c.fechaVencimiento}` : ''}`,
         `  peso declarado: bruto ${kg(c.pesoBruto)} | tara ${kg(c.pesoTara)} | neto ${kg(c.pesoNeto)}`,
       ];
 
-      if (c.pesoNetoDescarga !== undefined) {
-        const dif = (c.pesoNetoDescarga ?? 0) - (c.pesoNeto ?? 0);
+      if (c.pesoNetoDescarga !== null) {
+        const pct =
+          c.pesoNeto ? ` (${((c.diferenciaDescarga / c.pesoNeto) * 100).toFixed(1)} %)` : '';
         lineas.push(
           `  peso en destino: neto ${kg(c.pesoNetoDescarga)}` +
-            (c.pesoNeto ? ` | diferencia contra lo declarado: ${kg(dif)}` : ''),
+            (c.diferenciaDescarga !== null
+              ? ` | diferencia contra lo declarado: ${kg(c.diferenciaDescarga)}${pct}`
+              : ''),
         );
+      } else if (c.estado && c.estado !== 'CN') {
+        lineas.push('  peso en destino: sin descargar todavía');
       }
 
       lineas.push(
-        `  solicitante: ${c.cuitSolicitante ?? 's/d'} | destinatario: ${c.cuitDestinatario ?? 's/d'}`,
-        `  destino: ${c.cuitDestino ?? 's/d'} | transportista: ${c.cuitTransportista ?? 's/d'}`,
+        `  origen: ${c.cuitOrigen ?? 's/d'} | destinatario: ${c.cuitDestinatario ?? 's/d'}`,
+        `  destino: ${c.cuitDestino ?? 's/d'}${c.plantaDestino ? ` (planta ${c.plantaDestino})` : ''}`,
+        `  transportista: ${c.cuitTransportista ?? 's/d'}` +
+          (c.dominios?.length ? ` | dominios: ${c.dominios.join(', ')}` : ''),
       );
 
       if (c.errores?.length) {
@@ -133,14 +140,20 @@ server.registerTool(
 );
 
 server.registerTool(
-  'cpes_por_fecha',
+  'cpes_recibidas_en_planta',
   {
-    title: 'Listar cartas de porte por fecha',
+    title: 'Cartas de porte recibidas en una planta',
     description:
-      'Cartas de porte con fecha de partida dentro de un rango. ' +
+      'Cartas de porte que LLEGARON a una planta propia dentro de un rango de fechas. ' +
+      'Es la consulta del que recibe la mercadería, no del que la despacha: ARCA exige el ' +
+      'número de planta y no ofrece el listado inverso. Quien solo despacha no puede usar esto. ' +
       `Por defecto devuelve un resumen (totales por grano y las ${CPES_EN_RESUMEN} más recientes); ` +
       'pedir detalle solo para rangos cortos, porque una campaña entera son cientos de cartas.',
     inputSchema: {
+      planta: z
+        .number()
+        .int()
+        .describe('Número de planta de destino. Obligatorio: ARCA rechaza la consulta sin él.'),
       desde: FECHA.describe('Fecha de partida desde, YYYY-MM-DD'),
       hasta: FECHA.describe('Fecha de partida hasta, YYYY-MM-DD'),
       detalle: z
@@ -149,11 +162,13 @@ server.registerTool(
         .describe('Si es true, lista todas las cartas en vez del resumen.'),
     },
   },
-  async ({ desde, hasta, detalle = false }) => {
+  async ({ planta, desde, hasta, detalle = false }) => {
     try {
-      const lista = await arca().wscpe.porFecha(desde, hasta);
+      const lista = await arca().wscpe.porFecha(planta, desde, hasta);
       if (lista.length === 0) {
-        return texto(`Sin cartas de porte con partida entre ${desde} y ${hasta}.`);
+        return texto(
+          `Sin cartas de porte recibidas en la planta ${planta} entre ${desde} y ${hasta}.`,
+        );
       }
 
       const porGrano = new Map();
@@ -166,7 +181,7 @@ server.registerTool(
       }
 
       const lineas = [
-        `${lista.length} cartas de porte entre ${desde} y ${hasta}`,
+        `${lista.length} cartas de porte recibidas en la planta ${planta} entre ${desde} y ${hasta}`,
         ...[...porGrano.entries()]
           .sort((a, b) => b[1].kilos - a[1].kilos)
           .map(([grano, a]) => `  ${grano}: ${a.cantidad} cartas | ${tn(a.kilos)} tn`),
@@ -182,7 +197,7 @@ server.registerTool(
       for (const c of mostrar) {
         lineas.push(
           `  ${c.fechaEmision ?? 's/f'} | CTG ${c.nroCTG} | ${c.grano ?? c.codGrano ?? 's/d'} | ` +
-            `${kg(c.pesoNeto)} | ${c.estado ?? 's/d'} | dest. ${c.cuitDestinatario ?? 's/d'}`,
+            `${kg(c.pesoNeto)} | ${c.estado ?? 's/d'} | origen ${c.cuitOrigen ?? 's/d'}`,
         );
       }
 

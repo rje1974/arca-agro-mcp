@@ -68,7 +68,7 @@ test('expone exactamente las siete herramientas de consulta', async () => {
     'consultar_comprobante',
     'consultar_cpe',
     'consultar_padron',
-    'cpes_por_fecha',
+    'cpes_recibidas_en_planta',
     'estado_servicios',
     'tipos_de_grano',
     'ultimo_nro_orden',

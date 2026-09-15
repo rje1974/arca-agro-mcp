@@ -63,7 +63,7 @@ localmente el pedido de ticket.
 | Herramienta | Qué hace |
 |---|---|
 | `consultar_cpe` | Datos de una carta de porte por su CTG: grano, pesos, estado, CUIT que intervienen. |
-| `cpes_por_fecha` | Cartas de porte con partida en un rango de fechas, agrupadas por grano. |
+| `cpes_recibidas_en_planta` | Cartas de porte que **llegaron a una planta propia** en un rango. Es la consulta del que recibe. |
 | `tipos_de_grano` | Códigos de grano que ARCA reconoce hoy, consultados en vivo. |
 | `ultimo_nro_orden` | Último número de orden emitido, para detectar saltos de numeración. |
 | `consultar_padron` | Razón social, estado de clave, domicilio, régimen e impuestos de un CUIT. |
@@ -73,14 +73,14 @@ localmente el pedido de ticket.
 Preguntas que contesta bien:
 
 - *¿Qué dice la carta de porte con CTG 12345678901?*
-- *¿Cuántas toneladas de soja se movieron entre marzo y mayo?*
+- *¿Cuántas toneladas de soja entraron a la planta 22397 entre marzo y mayo?*
 - *¿Quién es el CUIT 30500120882 y qué régimen tiene?*
 - *¿Hay algún salto en la numeración de mis cartas de porte?*
 - *¿ARCA está caído o es problema de mis credenciales?*
 
 ### Sobre el volumen de datos
 
-`cpes_por_fecha` devuelve por defecto un **resumen**: totales por grano más las
+`cpes_recibidas_en_planta` devuelve por defecto un **resumen**: totales por grano más las
 20 cartas más recientes. Una campaña entera son cientos de cartas y volcarlas
 todas llena la ventana de contexto sin que nadie las lea. Con `detalle: true` se
 listan completas — conviene solo para rangos cortos.
@@ -95,6 +95,14 @@ donde además están documentados los quirks que cuesta descubrir: por qué el
 Ticket de Acceso hay que cachearlo en disco, por qué el `SOAPAction` de WSCPE no
 coincide con el nombre del elemento raíz, y por qué los comprobantes no conectan
 con `fetch`.
+
+### Lo que ARCA no deja hacer
+
+**No hay forma de listar por web service las cartas de porte que uno despacha.**
+`consultarCPEPorDestino` lista lo que *llega* a una planta propia y exige su
+número. Un productor que solo despacha no tiene con qué: ese listado solo se
+consigue por el portal. Conviene saberlo antes de perder una tarde buscando el
+parámetro correcto.
 
 ## Qué no cubre
 
