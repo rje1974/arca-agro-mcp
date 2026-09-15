@@ -1,0 +1,55 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.rje1974/arca-agro",
+  "description": "Cartas de porte, padron y comprobantes de ARCA (Argentina). Solo lectura.",
+  "repository": {
+    "url": "https://github.com/rje1974/arca-agro-mcp",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "arca-agro-mcp",
+      "version": "1.0.0",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        {
+          "name": "ARCA_CERT",
+          "description": "Ruta al certificado X.509 otorgado por ARCA para tu CUIT",
+          "isRequired": true,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "ARCA_KEY",
+          "description": "Ruta a la clave privada del certificado. Nunca se transmite, solo firma local",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "ARCA_CUIT",
+          "description": "CUIT representado, 11 digitos sin guiones",
+          "isRequired": true,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "ARCA_ENV",
+          "description": "Ambiente de ARCA: production (default) o testing",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        },
+        {
+          "name": "ARCA_CACHE_DIR",
+          "description": "Donde guardar los Tickets de Acceso. Default: ~/.cache/arca-agro",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

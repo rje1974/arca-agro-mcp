@@ -1,0 +1,52 @@
+{
+  "name": "arca-agro-mcp",
+  "version": "1.0.0",
+  "mcpName": "io.github.rje1974/arca-agro",
+  "description": "Servidor MCP de solo lectura para los web services agropecuarios de ARCA (Argentina) - cartas de porte, padron y comprobantes",
+  "type": "module",
+  "bin": {
+    "arca-agro-mcp": "server.js"
+  },
+  "main": "server.js",
+  "files": [
+    "server.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "node --check server.js",
+    "test": "node --test",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "arca",
+    "afip",
+    "argentina",
+    "agro",
+    "carta-de-porte",
+    "cpe",
+    "ctg",
+    "granos",
+    "padron"
+  ],
+  "author": "rje1974",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rje1974/arca-agro-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rje1974/arca-agro-mcp/issues"
+  },
+  "homepage": "https://github.com/rje1974/arca-agro-mcp#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "arca-agro-client": "^1.0.0",
+    "zod": "^4.0.0"
+  }
+}
