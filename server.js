@@ -71,10 +71,6 @@ const kg = (n) =>
     ? 's/d'
     : `${new Intl.NumberFormat('es-AR').format(n)} kg`;
 
-const tn = (n) =>
-  new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    .format((n || 0) / 1000);
-
 const server = new McpServer({ name: 'arca-agro', version: VERSION });
 
 // --- Cartas de porte ---------------------------------------------------------
@@ -116,6 +112,8 @@ server.registerTool(
               ? ` | diferencia contra lo declarado: ${kg(c.diferenciaDescarga)}${pct}`
               : ''),
         );
+      } else if (c.estado === 'AN') {
+        lineas.push('  peso en destino: la carta está anulada, no hubo descarga');
       } else if (c.estado && c.estado !== 'CN') {
         lineas.push('  peso en destino: sin descargar todavía');
       }
@@ -171,33 +169,31 @@ server.registerTool(
         );
       }
 
-      const porGrano = new Map();
+      // ARCA devuelve un resumen pelado: CTG, tipo, estado y fechas. No hay
+      // grano ni pesos que agrupar — para eso hay que consultar cada CTG.
+      const porEstado = new Map();
       for (const c of lista) {
-        const clave = c.grano ?? `código ${c.codGrano ?? 's/d'}`;
-        const acc = porGrano.get(clave) ?? { cantidad: 0, kilos: 0 };
-        acc.cantidad += 1;
-        acc.kilos += c.pesoNeto ?? 0;
-        porGrano.set(clave, acc);
+        const clave = c.estado ?? 's/d';
+        porEstado.set(clave, (porEstado.get(clave) ?? 0) + 1);
       }
 
       const lineas = [
         `${lista.length} cartas de porte recibidas en la planta ${planta} entre ${desde} y ${hasta}`,
-        ...[...porGrano.entries()]
-          .sort((a, b) => b[1].kilos - a[1].kilos)
-          .map(([grano, a]) => `  ${grano}: ${a.cantidad} cartas | ${tn(a.kilos)} tn`),
+        `  por estado: ${[...porEstado.entries()].map(([e, n]) => `${e}: ${n}`).join(' | ')}`,
+        '  ARCA no manda grano ni pesos en este listado; para el detalle de una,',
+        '  usar consultar_cpe con su CTG.',
         '',
       ];
 
       const mostrar = detalle
         ? lista
         : [...lista]
-            .sort((a, b) => String(b.fechaEmision).localeCompare(String(a.fechaEmision)))
+            .sort((a, b) => String(b.fechaPartida).localeCompare(String(a.fechaPartida)))
             .slice(0, CPES_EN_RESUMEN);
 
       for (const c of mostrar) {
         lineas.push(
-          `  ${c.fechaEmision ?? 's/f'} | CTG ${c.nroCTG} | ${c.grano ?? c.codGrano ?? 's/d'} | ` +
-            `${kg(c.pesoNeto)} | ${c.estado ?? 's/d'} | origen ${c.cuitOrigen ?? 's/d'}`,
+          `  ${c.fechaPartida ?? 's/f'} | CTG ${c.nroCTG} | tipo ${c.tipoCartaPorte ?? 's/d'} | ${c.estado ?? 's/d'}`,
         );
       }
 
@@ -344,7 +340,7 @@ server.registerTool(
 
       const lineas = [
         `Comprobante tipo ${c.tipoComprobante} N° ${c.nroComprobante} (pto. vta. ${c.puntoVenta})`,
-        `  fecha: ${c.fechaComprobante ?? 's/d'} | receptor: ${c.cuitReceptor ?? 's/d'}`,
+        `  fecha: ${c.fechaComprobante ?? 's/d'} | receptor: ${c.documentoReceptor ?? 's/d'}`,
         `  total: ${plata(c.importeTotal)} ${c.moneda ?? ''} | neto: ${plata(c.importeNeto)} | IVA: ${plata(c.importeIVA)}`,
         `  CAE: ${c.cae ?? 's/d'} | resultado: ${c.resultado ?? 's/d'}`,
       ];
@@ -404,7 +400,14 @@ server.registerTool(
             `(app ${d.appServer ?? '?'}, base ${d.dbServer ?? '?'}, auth ${d.authServer ?? '?'})`,
         );
       } catch (e) {
-        lineas.push(`  SIN RESPUESTA — ${nombre}: ${e.message}`);
+        // Un certificado que falta es problema de configuración, no una caída
+        // del organismo: decir "SIN RESPUESTA" mandaba a revisar ARCA al pedo.
+        const esConfig = /no se encontró|certificado|clave privada|openssl/i.test(e.message);
+        lineas.push(
+          esConfig
+            ? `  NO SE PUDO CHEQUEAR — ${nombre}: ${e.message}`
+            : `  SIN RESPUESTA — ${nombre}: ${e.message}`,
+        );
       }
     }
     return texto(`Estado de los servicios de ARCA:\n${lineas.join('\n')}`);
