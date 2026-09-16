@@ -272,9 +272,10 @@ server.registerTool(
   {
     title: 'Consultar el padrón por CUIT',
     description:
-      'Razón social, estado de la clave fiscal, domicilio, régimen impositivo, impuestos y ' +
-      'actividades de un CUIT. Sirve para saber contra quién se está operando y qué ' +
-      'tratamiento impositivo le corresponde.',
+      'Razón social, estado de la clave fiscal, domicilio fiscal, forma jurídica y ' +
+      'actividad principal de un CUIT. Sirve para saber contra quién se está operando. ' +
+      'El régimen impositivo (monotributo vs. general) solo aparece si el certificado ' +
+      'tiene habilitado el alcance A5 del padrón, que se pide aparte en ARCA.',
     inputSchema: { cuit: CUIT.describe('CUIT a consultar, con o sin guiones') },
   },
   async ({ cuit }) => {
@@ -288,12 +289,13 @@ server.registerTool(
         `${p.razonSocial ?? 's/d'} (CUIT ${p.cuit})`,
         `  tipo: ${p.tipoPersona ?? 's/d'} | clave: ${p.estadoClave ?? 's/d'} | régimen: ${p.regimen ?? 's/d'}`,
       ];
+      if (p.formaJuridica) lineas.push(`  forma jurídica: ${p.formaJuridica}${p.mesCierre ? ` | cierre de ejercicio: mes ${p.mesCierre}` : ''}`);
       if (p.categoriaMonotributo) lineas.push(`  categoría: ${p.categoriaMonotributo}`);
       if (p.domicilio) {
         lineas.push(
           `  domicilio: ${[p.domicilio.direccion, p.domicilio.localidad, p.domicilio.provincia]
             .filter(Boolean)
-            .join(', ') || 's/d'}`,
+            .join(', ') || 's/d'}${p.domicilio.tipo ? ` (${p.domicilio.tipo})` : ''}`,
         );
       }
       if (p.impuestos?.length) {

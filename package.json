@@ -1,6 +1,6 @@
 {
   "name": "arca-agro-mcp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "mcpName": "io.github.rje1974/arca-agro",
   "description": "Servidor MCP de solo lectura para los web services agropecuarios de ARCA (Argentina) - cartas de porte, padron y comprobantes",
   "type": "module",
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "arca-agro-client": "^1.1.0",
+    "arca-agro-client": "^1.2.0",
     "zod": "^4.0.0"
   }
 }
