@@ -1,5 +1,14 @@
 # arca-agro-mcp
 
+[![npm](https://img.shields.io/npm/v/arca-agro-mcp)](https://www.npmjs.com/package/arca-agro-mcp)
+[![Registro MCP](https://img.shields.io/badge/registro%20MCP-io.github.rje1974%2Farca--agro-blue)](https://registry.modelcontextprotocol.io)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+**El primer servidor MCP que consulta cartas de porte electrónicas de ARCA.**
+Los demás MCP argentinos del organismo se detienen en factura electrónica y
+padrón.
+
 Servidor MCP para consultar los web services **agropecuarios** de ARCA (ex AFIP)
 desde un agente: cartas de porte electrónicas, padrón de contribuyentes y
 comprobantes.
