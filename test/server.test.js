@@ -2,8 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const SERVER = path.join(import.meta.dirname, '..', 'server.js');
+const SERVER = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'server.js');
 
 // Credenciales que no existen: alcanza para que el servidor levante y liste sus
 // herramientas. Ninguna de estas pruebas sale a la red ni firma nada.
