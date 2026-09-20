@@ -136,6 +136,11 @@ npx @modelcontextprotocol/inspector node server.js
 Proyecto independiente, sin relación con ARCA. Verificá contra la fuente oficial
 antes de tomar una decisión fiscal o comercial.
 
+## Privacidad
+
+Corre en tu máquina, con tus credenciales, y habla solo con el organismo. No recolecta nada ni
+manda nada a ningún lado. El detalle, en [PRIVACY.md](PRIVACY.md).
+
 ## Soporte
 
 Esto se publica tal cual está. Las consultas van por los issues del repo, sin plazo
