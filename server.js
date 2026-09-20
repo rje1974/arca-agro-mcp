@@ -83,6 +83,12 @@ server.registerTool(
       'Datos completos de una carta de porte electrónica a partir de su CTG: grano, ' +
       'pesos, estado, fechas y los CUIT que intervienen. Incluye los pesos tomados en ' +
       'la balanza del destino, que son los que sirven para conciliar contra balanza propia.',
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     inputSchema: { nroCTG: CTG },
   },
   async ({ nroCTG }) => {
@@ -147,6 +153,12 @@ server.registerTool(
       'número de planta y no ofrece el listado inverso. Quien solo despacha no puede usar esto. ' +
       `Por defecto devuelve un resumen (totales por grano y las ${CPES_EN_RESUMEN} más recientes); ` +
       'pedir detalle solo para rangos cortos, porque una campaña entera son cientos de cartas.',
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     inputSchema: {
       planta: z
         .number()
@@ -215,6 +227,12 @@ server.registerTool(
       'Códigos de grano que reconoce ARCA hoy, consultados en vivo. Útil para traducir ' +
       'el código que trae una carta de porte, y para descartar códigos de planillas ' +
       'viejas que el organismo ya no reconoce.',
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     inputSchema: {},
   },
   async () => {
@@ -244,6 +262,12 @@ server.registerTool(
     description:
       'Último número de orden de carta de porte emitido para una sucursal y tipo de CPE. ' +
       'Sirve para detectar saltos de numeración.',
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     inputSchema: {
       sucursal: z.number().int().min(0).optional().describe('Número de sucursal. Default: 0.'),
       tipoCPE: z
@@ -276,6 +300,12 @@ server.registerTool(
       'actividad principal de un CUIT. Sirve para saber contra quién se está operando. ' +
       'El régimen impositivo (monotributo vs. general) solo aparece si el certificado ' +
       'tiene habilitado el alcance A5 del padrón, que se pide aparte en ARCA.',
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     inputSchema: { cuit: CUIT.describe('CUIT a consultar, con o sin guiones') },
   },
   async ({ cuit }) => {
@@ -326,6 +356,12 @@ server.registerTool(
     description:
       'Detalle de un comprobante ya emitido: importes, IVA, CAE y estado. Solo consulta: ' +
       'no autoriza comprobantes ni pide CAE.',
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     inputSchema: {
       puntoVenta: z.number().int().describe('Punto de venta'),
       tipoComprobante: z.number().int().describe('Tipo de comprobante (1 = Factura A, 6 = Factura B, ...)'),
@@ -366,6 +402,12 @@ server.registerTool(
       'Chequea si los servidores de ARCA están respondiendo. No usa el certificado ni ' +
       'consulta datos de nadie: es lo primero que conviene mirar cuando algo falla, ' +
       'para separar una caída del organismo de un problema de credenciales.',
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
     inputSchema: {},
   },
   async () => {
